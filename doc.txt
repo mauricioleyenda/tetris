@@ -1,0 +1,54 @@
+Project conventions — read before writing any code.
+Coordinates: x increases right, y increases down, origin top-left. Every cell is an
+integer (x, y) pair. Board is 10 wide (BOARD_W=10) × 20 tall (BOARD_H=20).
+Board representation: a list of 20 rows, each a list of 10 ints. 0 = empty; 1–7 = a
+locked cell's color ID. The active piece and its ghost are NEVER written into the board
+until lock(); they travel separately in the snapshot.
+Rotation indices: 0 = spawn, 1 = R (one CW turn from spawn), 2 = 180°, 3 = L
+(one CCW turn from spawn).
+Color IDs: I=1, O=2, T=3, S=4, Z=5, J=6, L=7, empty =0.
+Wire contract — server → client (full snapshot, sent every tick and after every mutating
+input; the whole board is tiny so no diffing):
+json{
+  "board": [[0]],
+  "piece": { "type": "T", "rot": 0, "x": 4, "y": 0, "cells": [[4,0],[3,1],[4,1],[5,1]] },
+  "ghost": { "y": 17, "cells": [[4,17],[3,18],[4,18],[5,18]] },
+  "next":  ["S","Z","L"],
+  "hold":  null,
+  "score": 0, "level": 1, "lines": 0,
+  "over": false, "paused": false, "seq": 0
+}
+Wire contract — client → server:
+json{"type":"input","action":"left|right|rotate_cw|rotate_ccw|soft|hard|hold"}
+{"type":"start"}
+{"type":"pause"}
+Dependency rules (do not violate):
+
+pieces.py — pure data + pure lookups. Stdlib only. No state.
+game.py — pure synchronous logic. No asyncio, no sockets, no import random. All
+randomness enters via an injected piece_source callable.
+randomizer.py — the only place random is used.
+session.py — the only file that touches both asyncio and the WebSocket.
+main.py — FastAPI wiring only; zero game logic.
+
+Public signatures other files rely on:
+python# pieces.py
+COLORS: dict[str, int]
+def cells(piece_type: str, rot: int) -> list[tuple[int, int]]      # box-local cells
+def kicks(piece_type: str, from_rot: int, to_rot: int) -> list[tuple[int, int]]
+
+# randomizer.py
+class SevenBag:
+    def __init__(self, seed: int | None = None) -> None: ...
+    def next(self) -> str: ...
+    def peek(self, n: int) -> list[str]: ...
+
+# game.py
+class TetrisGame:
+    def __init__(self, piece_source: Callable[[], str]) -> None: ...
+    def snapshot(self) -> dict: ...
+
+# session.py
+class GameSession:
+    def __init__(self, ws) -> None: ...
+    async def run(self) -> None: ...
