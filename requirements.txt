@@ -1,0 +1,14 @@
+# Python Tetris — server-authoritative (FastAPI + WebSocket)
+# Target runtime: Python 3.11+
+# Install with: pip install -r requirements.txt
+
+# Web framework: serves index.html (HTTP) + the game loop (WebSocket)
+fastapi==0.136.3
+
+# ASGI server. The [standard] extra pulls in uvloop + httptools
+# for lower-latency WebSocket throughput, plus watchfiles for --reload.
+uvicorn[standard]==0.48.0
+
+# WebSocket transport. Already installed transitively by uvicorn[standard],
+# but pinned explicitly since the app imports/relies on it directly.
+websockets==16.0
