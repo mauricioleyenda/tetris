@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!--
+  SHARED CONTEXT (project conventions)
+  Coordinates: x increases right, y increases DOWN, origin top-left. Board is 10
+  wide x 20 tall. Color IDs: I=1, O=2, T=3, S=4, Z=5, J=6, L=7, empty=0.
+  Rotation indices: 0 = spawn, 1 = R, 2 = 180, 3 = L.
+  The server is authoritative: the client sends intent and renders snapshots.
+  Structure only here -- all logic lives in game.js.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tetris</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="/static/game.js" defer></script>
+</head>
+<body>
+  <main class="game">
+    <section class="stage" id="stage">
+      <canvas id="board" width="300" height="600"></canvas>
+
+      <div class="overlay hidden" id="overlay">
+        <div class="overlay-card">
+          <h1 id="overlay-title">Game Over</h1>
+          <p id="overlay-score">Score: 0</p>
+          <p class="hint">Refresh to play again</p>
+        </div>
+      </div>
+
+      <div class="badge hidden" id="pause-badge">Paused</div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="box">
+        <h2>Hold</h2>
+        <canvas id="hold" width="120" height="90"></canvas>
+      </div>
+
+      <div class="box">
+        <h2>Next</h2>
+        <canvas id="next" width="120" height="300"></canvas>
+      </div>
+
+      <div class="box stats">
+        <h2>Stats</h2>
+        <dl>
+          <dt>Score</dt><dd><span id="score">0</span></dd>
+          <dt>Level</dt><dd><span id="level">1</span></dd>
+          <dt>Lines</dt><dd><span id="lines">0</span></dd>
+        </dl>
+      </div>
+
+      <div class="box help">
+        <h2>Keys</h2>
+        <ul>
+          <li>&larr; &rarr; move</li>
+          <li>&darr; soft drop</li>
+          <li>Space hard drop</li>
+          <li>&uarr; / X rotate cw</li>
+          <li>Z rotate ccw</li>
+          <li>C / Shift hold</li>
+          <li>P pause</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>
